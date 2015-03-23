@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<transition xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:id="@+id/beforeColor">
+        <shape android:shape="rectangle">
+            <solid android:color="#A92929"/>
+        </shape>
+    </item>
+
+    <item android:id="@+id/afterColor">
+        <shape android:shape="rectangle">
+            <solid android:color="#0080FF"/>
+        </shape>
+    </item>
+</transition>
