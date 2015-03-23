@@ -78,7 +78,7 @@ public class DeckScreen extends Activity {
                 Log.d("Debug", String.valueOf(color instanceof TransitionDrawable));
                 if (color instanceof TransitionDrawable){
                     ((TransitionDrawable) color).reverseTransition(1000);
-                    Log.d("Debug", "secondPress");
+                    Log.d("Debug", "secondPress.");
 
                     if(selectedItems[position] == true){
                         selectedItems[position] = false;
