@@ -25,5 +25,5 @@ dependencies {
     compile 'org.jsoup:jsoup:1.7.2'
     compile 'com.android.support:support-v4:21.0.3'
     compile 'info.hoang8f:fbutton:1.0.5'
-
+    compile 'com.github.lzyzsd:circleprogress:1.1.0@aar'
 }

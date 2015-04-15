@@ -1,14 +1,22 @@
 package com.andrew.softwaredesign.guessagain;
 
 import com.andrew.softwaredesign.guessagain.util.SystemUiHider;
+import com.github.lzyzsd.circleprogress.DonutProgress;
 
-import android.annotation.TargetApi;
-import android.app.Activity;
-import android.os.Build;
+import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Handler;
-import android.view.MotionEvent;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.util.Log;
 import android.view.View;
+import android.view.Window;
+import android.widget.TextView;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Random;
 
 
 /**
@@ -17,144 +25,128 @@ import android.view.View;
  *
  * @see SystemUiHider
  */
-public class GameScreen extends Activity {
-    /**
-     * Whether or not the system UI should be auto-hidden after
-     * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
-     */
-    private static final boolean AUTO_HIDE = true;
-
-    /**
-     * If {@link #AUTO_HIDE} is set, the number of milliseconds to wait after
-     * user interaction before hiding the system UI.
-     */
-    private static final int AUTO_HIDE_DELAY_MILLIS = 3000;
-
-    /**
-     * If set, will toggle the system UI visibility upon interaction. Otherwise,
-     * will show the system UI visibility upon interaction.
-     */
-    private static final boolean TOGGLE_ON_CLICK = true;
-
-    /**
-     * The flags to pass to {@link SystemUiHider#getInstance}.
-     */
-    private static final int HIDER_FLAGS = SystemUiHider.FLAG_HIDE_NAVIGATION;
-
-    /**
-     * The instance of the {@link SystemUiHider} for this activity.
-     */
-    private SystemUiHider mSystemUiHider;
+public class GameScreen extends FragmentActivity {
+    private DonutProgress donutProgress;
+    private TextView showChoices;
+    private ScoreStatistics scoreStatistics;
+    private HistoryStatistics historyStatistics;
+    private String gameChoice = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_game_screen);
 
-        final View controlsView = findViewById(R.id.fullscreen_content_controls);
-        final View contentView = findViewById(R.id.fullscreen_content);
+        int choice = getIntent().getIntExtra("Gamechoice", 1);
 
-        // Set up an instance of SystemUiHider to control the system UI for
-        // this activity.
-        mSystemUiHider = SystemUiHider.getInstance(this, contentView, HIDER_FLAGS);
-        mSystemUiHider.setup();
-        mSystemUiHider
-                .setOnVisibilityChangeListener(new SystemUiHider.OnVisibilityChangeListener() {
-                    // Cached values.
-                    int mControlsHeight;
-                    int mShortAnimTime;
+        launcherGameWords(choice);
+        initStatTrack();
+    }
 
-                    @Override
-                    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-                    public void onVisibilityChange(boolean visible) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-                            // If the ViewPropertyAnimator API is available
-                            // (Honeycomb MR2 and later), use it to animate the
-                            // in-layout UI controls at the bottom of the
-                            // screen.
-                            if (mControlsHeight == 0) {
-                                mControlsHeight = controlsView.getHeight();
-                            }
-                            if (mShortAnimTime == 0) {
-                                mShortAnimTime = getResources().getInteger(
-                                        android.R.integer.config_shortAnimTime);
-                            }
-                            controlsView.animate()
-                                    .translationY(visible ? 0 : mControlsHeight)
-                                    .setDuration(mShortAnimTime);
-                        } else {
-                            // If the ViewPropertyAnimator APIs aren't
-                            // available, simply show or hide the in-layout UI
-                            // controls.
-                            controlsView.setVisibility(visible ? View.VISIBLE : View.GONE);
-                        }
+    public ScoreStatistics getScoreStats(){
+        return scoreStatistics;
+    }
 
-                        if (visible && AUTO_HIDE) {
-                            // Schedule a hide().
-                            delayedHide(AUTO_HIDE_DELAY_MILLIS);
-                        }
-                    }
-                });
+    private void launcherGameWords(final int choice) {
+        showChoices = (TextView) findViewById(R.id.fullScreenTextChoices);
 
-        // Set up the user interaction to manually show or hide the system UI.
-        contentView.setOnClickListener(new View.OnClickListener() {
+        String firstWord = makeDecisionForChoice(choice);
+        InitialCountdown myCaller = new InitialCountdown(showChoices, firstWord);
+        myCaller.execute(choice);
+
+        showChoices.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (TOGGLE_ON_CLICK) {
-                    mSystemUiHider.toggle();
-                } else {
-                    mSystemUiHider.show();
-                }
+                scoreStatistics.increaseCurrentCorrect();
+                Log.d("Debug score", String.valueOf(scoreStatistics.getCurrentCorrect()));
+                String newWord = makeDecisionForChoice(choice);
+                showChoices.setText(newWord);
             }
         });
 
-        // Upon interacting with UI controls, delay any scheduled hide()
-        // operations to prevent the jarring behavior of controls going away
-        // while interacting with the UI.
-        findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
+        donutProgress = (DonutProgress) findViewById(R.id.donut_progress);
+        donutProgress.setMax(600);
+        donutProgress.setSuffixText("");
+        donutProgress.setTextColor(Color.TRANSPARENT);
+        donutProgress.setFinishedStrokeColor(Color.rgb(211,84,0));
+        donutProgress.setFinishedStrokeWidth(20);
+        donutProgress.setUnfinishedStrokeColor(Color.rgb(243,156,18));
+        donutProgress.setUnfinishedStrokeWidth(10);
+
+        CircularTimer circleTimer = new CircularTimer(this, donutProgress);
+        circleTimer.execute();
     }
+
+    public void makePopup(){
+        FragmentManager fragManager = getSupportFragmentManager();
+        FinishedGameFragment popup = new FinishedGameFragment();
+
+        popup.show(fragManager, "popup");
+    }
+
+
+    private String makeDecisionForChoice(int choice){
+        String deckOfChoice = "Error";
+        switch (choice){
+            case 0:
+                gameChoice = "Celebrity";
+                deckOfChoice = makeList("celebritiesList.txt");
+                break;
+            case 1:
+                gameChoice = "Movie";
+                deckOfChoice = makeList("moviesList.txt");
+                break;
+            case 2:
+                gameChoice = "Countries";
+                deckOfChoice = makeList("countriesList.txt");
+                break;
+            case 3:
+                gameChoice = "Famous History Figures";
+                deckOfChoice = makeList("famousPeopleList.txt");
+                break;
+            case 4:
+                gameChoice = "Endangered Animals";
+                deckOfChoice = makeList("endangeredAnimalsList.txt");
+                break;
+        }
+        return deckOfChoice;
+    }
+
+    private void initStatTrack() {
+        scoreStatistics = new ScoreStatistics(gameChoice);
+        historyStatistics = new HistoryStatistics();
+        historyStatistics.increaseTotalGamesPlayed();
+    }
+
+    private String makeList(String textFile){
+        BufferedReader reader;
+        String line = "";
+        ArrayList<String> rows = new ArrayList<>();
+        int select = 0;
+        String[] returnedArray = null;
+        try {
+            reader = new BufferedReader(
+                    new InputStreamReader(getAssets().open(textFile)));
+
+            while((line = reader.readLine()) != null){
+                rows.add(line);
+            }
+            returnedArray = (rows.toArray(new String[rows.size()]));
+            Random random = new Random();
+
+            select = random.nextInt(returnedArray.length);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return returnedArray[select];
+    }
+
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
 
-        // Trigger the initial hide() shortly after the activity has been
-        // created, to briefly hint to the user that UI controls
-        // are available.
-        delayedHide(100);
     }
 
-
-    /**
-     * Touch listener to use for in-layout UI controls to delay hiding the
-     * system UI. This is to prevent the jarring behavior of controls going away
-     * while interacting with activity UI.
-     */
-    View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View view, MotionEvent motionEvent) {
-            if (AUTO_HIDE) {
-                delayedHide(AUTO_HIDE_DELAY_MILLIS);
-            }
-            return false;
-        }
-    };
-
-    Handler mHideHandler = new Handler();
-    Runnable mHideRunnable = new Runnable() {
-        @Override
-        public void run() {
-            mSystemUiHider.hide();
-        }
-    };
-
-    /**
-     * Schedules a call to hide() in [delay] milliseconds, canceling any
-     * previously scheduled calls.
-     */
-    private void delayedHide(int delayMillis) {
-        mHideHandler.removeCallbacks(mHideRunnable);
-        mHideHandler.postDelayed(mHideRunnable, delayMillis);
-    }
 }

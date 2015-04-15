@@ -6,16 +6,20 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Display;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
@@ -45,7 +49,14 @@ public class DeckScreen extends Activity {
                     }
                 }
                 if(selected == 1){
+                    int choice = 0;
+                    for (int i = 0; i<selectedItems.length; i++){
+                        if(selectedItems[i]){
+                            choice = i;
+                        }
+                    }
                     Intent gamePlay = new Intent(getApplicationContext(), GameScreen.class);
+                    gamePlay.putExtra("Gamechoice", choice);
                     startActivity(gamePlay);
                 }else{
                     Toast.makeText(DeckScreen.this, "Please only select one Deck", Toast.LENGTH_SHORT).show();
@@ -97,82 +108,19 @@ public class DeckScreen extends Activity {
                 String randomSelection = "";
                 switch (position){
                     case 0:
-//                        randomSelection = celebrityIntent();
+                        randomSelection = "You chose Celebrities";
                         break;
                     case 1:
-//                        randomSelection = movieIntent();
+                        randomSelection = "You chose Movies";
                         break;
                     case 2:
 //                        randomSelection = celebrityIntent();
                         break;
                 }
 
-//                Toast.makeText(DeckScreen.this, randomSelection, Toast.LENGTH_SHORT).show();
+                Toast.makeText(DeckScreen.this, randomSelection, Toast.LENGTH_SHORT).show();
             }
         });
 
-    }
-
-
-    private String celebrityIntent(){
-        BufferedReader reader;
-        String celebName = "";
-        ArrayList<String> celebs = new ArrayList<>();
-        int select = 0;
-        String[] celebArray = null;
-        try {
-            reader = new BufferedReader(
-                    new InputStreamReader(getAssets().open("celebritiesList.txt")));
-
-            while((celebName = reader.readLine()) != null){
-                celebs.add(celebName);
-            }
-            celebArray = (celebs.toArray(new String[celebs.size()]));
-            Random random = new Random();
-
-            select = random.nextInt(celebArray.length);
-
-
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return celebArray[select];
-    }
-
-    private String movieIntent(){
-        BufferedReader reader;
-        String celebName = "";
-        ArrayList<String> movies = new ArrayList<>();
-        int select = 0;
-        String[] moviesArray = null;
-        try {
-            reader = new BufferedReader(
-                    new InputStreamReader(getAssets().open("moviesList.txt")));
-
-            while((celebName = reader.readLine()) != null){
-                movies.add(celebName);
-            }
-            moviesArray = (movies.toArray(new String[movies.size()]));
-            Random random = new Random();
-
-            select = random.nextInt(moviesArray.length);
-
-
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return moviesArray[select];
-    }
-
-    public boolean isNetworkActive(){
-        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-        if (networkInfo != null && networkInfo.isConnected()) {
-            return true;
-        } else {
-            return false;
-        }
     }
 }
