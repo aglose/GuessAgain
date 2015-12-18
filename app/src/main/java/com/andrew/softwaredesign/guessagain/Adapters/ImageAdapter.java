@@ -1,4 +1,4 @@
-package com.andrew.softwaredesign.guessagain;
+package com.andrew.softwaredesign.guessagain.Adapters;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -15,6 +15,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import com.andrew.softwaredesign.guessagain.R;
 
 
 /**
@@ -83,7 +85,7 @@ public class ImageAdapter extends BaseAdapter {
                     c.getResources().getString(R.string.countries_Cat),
                     c.getResources().getString(R.string.famousPPL_Cat),
                     c.getResources().getString(R.string.endangered_Cat),
-                c.getResources().getString(R.string.celebrities_Cat),};
+                c.getResources().getString(R.string.books_Cat),};
     }
 
 }

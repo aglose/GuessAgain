@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.andrew.softwaredesign.guessagain.FinishedGameFragment">
+    tools:context="com.andrew.softwaredesign.guessagain.Fragments.FinishedGameFragment">
 
     <View
         android:layout_width="fill_parent"
@@ -30,7 +30,31 @@
         android:id="@+id/userCorrectAmount"
         android:layout_below="@+id/view"
         android:layout_centerHorizontal="true"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="15dp"
+        android:layout_gravity="center_horizontal" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="High Score"
+        android:textColor="@color/white"
+        android:textSize="20dp"
+        android:id="@+id/highScoreText"
+        android:layout_centerHorizontal="true"
         android:layout_marginTop="15dp"
+        android:layout_marginBottom="5dp"
+        android:layout_gravity="center_horizontal" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="High Score"
+        android:textColor="@color/textBlue"
+        android:id="@+id/highScore"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="5dp"
         android:layout_marginBottom="15dp"
         android:layout_gravity="center_horizontal" />
 

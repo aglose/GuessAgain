@@ -3,40 +3,50 @@ package com.andrew.softwaredesign.guessagain;
 import android.animation.AnimatorInflater;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
-import android.content.Context;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
-import android.view.Display;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
-import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import com.andrew.softwaredesign.guessagain.Adapters.ImageAdapter;
+import com.andrew.softwaredesign.guessagain.Statistics.HistoryStatistics;
+import com.andrew.softwaredesign.guessagain.Statistics.ScoreStatistics;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
 import java.util.ArrayList;
-import java.util.Random;
 
 
 public class DeckScreen extends Activity {
     private boolean[] selectedItems = {false, false, false, false, false, false};
     Button playButton;
+    TextView userText;
+    TextView gamesPlayed;
+    HistoryStatistics historyStatistics;
+    String historyJson;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_deck_screen);
+
+        final String user = getIntent().getStringExtra("User");
+        userText = (TextView) findViewById(R.id.userTextId);
+        userText.setText(user);
+
+        checkForUserHistory();
 
         playButton = (Button) findViewById(R.id.beginGameButton);
         playButton.setOnClickListener(new View.OnClickListener() {
@@ -55,8 +65,11 @@ public class DeckScreen extends Activity {
                             choice = i;
                         }
                     }
+
                     Intent gamePlay = new Intent(getApplicationContext(), GameScreen.class);
                     gamePlay.putExtra("Gamechoice", choice);
+                    gamePlay.putExtra("User", user);
+                    gamePlay.putExtra("History", historyJson);
                     startActivity(gamePlay);
                 }else{
                     Toast.makeText(DeckScreen.this, "Please only select one Deck", Toast.LENGTH_SHORT).show();
@@ -103,24 +116,25 @@ public class DeckScreen extends Activity {
                     v.findViewById(R.id.categoryImageView).setBackground(crossfader);
                     crossfader.startTransition(1000);
                 }
-
-
-                String randomSelection = "";
-                switch (position){
-                    case 0:
-                        randomSelection = "You chose Celebrities";
-                        break;
-                    case 1:
-                        randomSelection = "You chose Movies";
-                        break;
-                    case 2:
-//                        randomSelection = celebrityIntent();
-                        break;
-                }
-
-                Toast.makeText(DeckScreen.this, randomSelection, Toast.LENGTH_SHORT).show();
             }
         });
 
+    }
+
+    private void checkForUserHistory() {
+        gamesPlayed = (TextView) findViewById(R.id.userGamesAmount);
+
+        SharedPreferences appSharedPrefs = PreferenceManager
+                .getDefaultSharedPreferences(getApplicationContext());
+        Gson gson = new Gson();
+        historyJson = appSharedPrefs.getString(userText.getText().toString()+"SavedHistory", "");
+        if(historyJson.length() > 0){
+            Log.d("Debug check", historyJson);
+            HistoryStatistics history = gson.fromJson(historyJson, new TypeToken<HistoryStatistics>(){}.getType());
+            historyStatistics = history;
+            gamesPlayed.setText(String.valueOf(historyStatistics.getTotalGamesPlayed()));
+        }else{
+            gamesPlayed.setText(String.valueOf(0));
+        }
     }
 }

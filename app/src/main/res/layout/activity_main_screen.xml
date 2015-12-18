@@ -14,11 +14,9 @@
         android:id="@+id/playButton"
         android:background="@drawable/custom_btn_green"
         android:layout_gravity="center_horizontal"
-        android:layout_alignParentTop="true"
-        android:layout_alignStart="@+id/exitButton"
-        android:layout_marginTop="50dp"
-        android:layout_alignParentLeft="false"
-        android:layout_alignParentBottom="false" />
+        android:layout_below="@+id/loggedInText"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="62dp" />
 
     <Button
         android:layout_width="150dp"
@@ -42,10 +40,13 @@
         android:layout_below="@+id/aboutButton"
         android:layout_alignStart="@+id/aboutButton" />
 
-
     <TextView
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:id="@+id/popUpAbout"
-        />
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/white"
+        android:textSize="15dp"
+        android:text="Welcome back "
+        android:id="@+id/userId"
+        android:layout_alignParentTop="true"
+       />
 </RelativeLayout>

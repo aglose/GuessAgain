@@ -4,7 +4,7 @@
     xmlns:ProgressWheel="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0099cc">
+    android:background="#5C49FF">
 
 
         <com.github.lzyzsd.circleprogress.DonutProgress
@@ -18,9 +18,9 @@
          is needed to present your content, e.g. VideoView, SurfaceView,
          TextureView, etc. -->
     <TextView android:id="@+id/fullScreenTextChoices" android:layout_width="match_parent"
-        android:layout_height="match_parent" android:keepScreenOn="true" android:textColor="#33b5e5"
+        android:layout_height="match_parent" android:keepScreenOn="true" android:textColor="@color/white"
         android:textStyle="bold" android:textSize="50sp" android:gravity="center"
-        android:text="@string/dummy_content" />
+        />
 
     <!-- This FrameLayout insets its children based on system windows using
          android:fitsSystemWindows. -->
